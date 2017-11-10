@@ -1,0 +1,271 @@
+#include("/WEB-INF/view/common/qui/header.html")
+<!--数据表格start-->
+<script src="../../libs/js/table/quiGrid.js" type="text/javascript"></script>
+<!--数据表格end-->
+
+<!--表单异步提交start-->
+<script src="../../libs/js/form/form.js" type="text/javascript"></script>
+<!--表单异步提交end-->
+
+<script src="/static/js/date.js" type="text/javascript"></script>
+
+<!--尺寸拖拽调整start-->
+<script type="text/javascript" src="/libs/js/drag/dragResize.js"></script>
+<!--尺寸拖拽调整end-->
+</head>
+<body>
+<div class="box2" panelTitle="综合查询" id="searchPanel">
+	<form id="queryForm" method="post">
+		<table>
+			<tr>
+				<td></td>
+				<td>供应商编码：</td>
+				<td>
+					<input type="text" id="searchInput" name="supplier.GYSBH" />
+				</td>
+				<td>企业名称：</td>
+				<td>
+					<input type="text" id="searchInput" name="supplier.QYMC" />
+				</td>
+				<td>证书编号：</td>
+				<td>
+					<input type="text" id="searchInput" name="certificate.NO" />
+				</td>
+				<td>证书名称：</td>
+				<td>
+					<input type="text" id="searchInput" name="certificate.NAME" />
+				</td>
+				<td>证书类别：</td>
+					<td>
+					<select url="/cersort/ZslblList"
+							prompt="请选择" name="certificate.ZSLB" selectedValue="#(certificate.ZSLB ?? )"></select>
+				</td>
+				<!-- <td>物资编码：</td>
+				<td>
+					<input type="text" id="searchInput" name="certificatesupcode.CODE" />
+				</td> -->
+				<td><button type="button" onclick="searchHandler()"><span class="icon_find">查询</span></button></td>
+				<td><button type="button" onclick="resetSearch()"><span class="icon_reload">重置</span></button></td>
+				<td><button type="button" onclick="exportGysAndCer()"><span class="icon_find ">导出</span></button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<div>
+	<div id="dataBasic"></div>
+</div>
+
+<script type="text/javascript">
+function openDetail(qymc) {
+	top.document.getElementById("frmright").src="/suppliestemplate?CSQYMC="+qymc;
+}
+
+function initComplete(){
+	//当提交表单刷新本页面时关闭弹窗
+	top.Dialog.close();
+	
+	grid = $("#dataBasic").quiGrid({
+		columns:[
+				{ display: '供应商编码', name: 'GYSBH', align: 'center'},
+				{ display: '企业名称', name: 'QYMC', align: 'center'},
+				/* { display: '供应商经营范围', name: 'GYSJYFW', align: 'center'}, */
+				{ display: '供应商分类', name: 'GYSFL', align: 'center'},
+				/* { display: '供应商企业性质', name: 'GYSQYXZ', align: 'center'}, */
+				{ display: '营业执照照片', name: 'YYZZZP', align: 'center', render:  function (rowdata, rowindex, value, column){
+					var shtml ="";
+					if(rowdata.YYZZZP!=null){
+						  shtml = "<a href="+rowdata.YYZZZP+"  id='pics'  target='_blank'>点击查看</a>";
+					}
+	                return shtml;
+	            }},
+	            { display: '供应商经营范围', name: 'GYSJYFW', align: 'center', width: '7%', render:  function (rowdata, rowindex, value, column){
+					//top.frmright.src = '/suppliestemplate'document.getElementById('youriframe').src
+					//var	 shtml = "";
+					var	 shtml = '<a id="pics" href='+'javascript:openDetail("' + rowdata.QYMC + '")'+'>供应商所含物资</a>';
+	               return shtml;
+	            }},
+				{ display: '证书编号', name: 'NO', align: 'center'},
+				{ display: '证书名称', name: 'NAME', align: 'center'},
+				{ display: '证书类别', name: 'ZSLB', align: 'center'},
+				{ display: '证书照片', name: 'ZSZP', align: 'center', render:  function (rowdata, rowindex, value, column){
+					var shtml ="";
+					if(rowdata.ZSZP!=null){
+						  shtml = "<a href="+rowdata.ZSZP+"  id='pics'  target='_blank'>证书1</a>";
+					}
+				    if(rowdata.ZSZP2!=null){
+						  shtml += "&nbsp;&nbsp;<a href="+rowdata.ZSZP2+"  id='pics'  target='_blank'>证书2</a>";
+					}
+					if(rowdata.ZSZP3!=null){
+						  shtml += "&nbsp;&nbsp;<a href="+rowdata.ZSZP3+"  id='pics'  target='_blank'>证书3</a>";
+					}
+	                return shtml;
+	            }},
+				/* { display: '物资编码', name: 'CODE', align: 'center'}, */
+				/* { display: '物资名称', name: 'WZMC', align: 'center'}, */
+				{ display: '实物图片', name: 'SWTP', align: 'center',  render:  function (rowdata, rowindex, value, column){
+					var shtml ="";
+					if(rowdata.SWTP!=null){
+						  shtml = "<a href="+rowdata.SWTP+"  id='pics'  target='_blank'>实物1</a>";
+					}
+					 if(rowdata.SWTP2!=null){
+						  shtml += "&nbsp;&nbsp;&nbsp;<a href="+rowdata.SWTP2+"  id='pics'  target='_blank'>实物2</a>";
+					}
+					if(rowdata.SWTP3!=null){
+						  shtml += "&nbsp;&nbsp;&nbsp;<a href="+rowdata.SWTP3+"  id='pics'  target='_blank'>实物3</a>";
+					} 
+	                return shtml;
+	            }},
+	       		/* { display: '操作', isAllowHide: false, align: 'center', width:300,
+					 render: function (rowdata, rowindex, value, column){
+                 	    return '<div class="padding_top4 padding_left5">'
+                 	  			 + '<span class="img_list hand" title="查看" onclick='+'onView("' + rowdata.ID + '")'+'></span>'
+                 	  		  	 + '<span class="img_edit hand" title="修改" onclick='+'onEdit("' + rowdata.ID + '")'+'></span>' 
+                             	 + '<span class="img_delete hand" title="删除" onclick='+'onDelete("' + rowdata.ID+'",'+rowindex + ')'+'></span>'
+                         	 	 + '</div>';
+	                 }
+	            } */
+		  ],
+	url: '/joinlist/list', sortName: 'GRADEPJ',rownumbers:true,
+    height: '100%', width:"100%",pageSize:10,percentWidthMode:true,
+    
+     toolbar:{
+    	 items:[
+    		 /* {text: '新增', click: addUnit,    iconClass: 'icon_add'},
+    	    {text: '导入', click: importQuote,   iconClass: 'icon_import'}, 
+    		  { line : true },
+    		  {text: '批量删除', click: deleteUnit, iconClass: 'icon_delete'},
+    		  { line : true },*/
+    		]
+     	}
+	});
+	
+	//监听查询框的回车事件
+	 $("#searchInput").keydown(function(event){
+	 	if(event.keyCode==13){
+			searchHandler();
+		}
+	 })
+	 
+	 $("#searchPanel").bind("stateChange",function(e,state){
+		grid.resetHeight();
+	});
+}
+
+//新增
+function addUnit() {
+	top.Dialog.open({
+			URL:"/suppliergrade/addView",
+			Title:"添加",Width:500,Height:350});
+}
+//查看
+function onView(rowid){
+	top.Dialog.open({
+		URL:"/suppliergrade/detailView?id="+rowid,
+		Title:"查看",Width:500,Height:300});
+}
+
+//修改	
+function onEdit(rowid){
+	top.Dialog.open({
+		URL:"/suppliergrade/updateView?id="+rowid,
+		Title:"修改",Width:500,Height:350});
+}
+//删除	
+function onDelete(rowid,rowidx){
+	top.Dialog.confirm("确定要删除该记录吗？",function(){
+	  	//删除记录
+	  	//删除记录
+	  	$.post("/suppliergrade/delete",
+	  			{"id":rowid},
+	  			function(result){
+	  				handleResult(result.status);
+				},"json");
+				//刷新表格
+				grid.loadData();
+		});
+}
+	
+	
+//批量删除
+function deleteUnit() {
+	var rows = grid.getSelectedRows();
+	var rowsLength = rows.length;
+	
+	if(rowsLength == 0) {
+		top.Dialog.alert("请选中要删除的记录!");
+		return;
+	}
+	top.Dialog.confirm("确定要删除吗？",function(){
+		$.post("/suppliergrade/deleteBatch",
+					//获取所有选中行
+					getSelectIds(grid),
+					function(result){
+						handleResult(result.status);
+					},
+					"json");
+		});
+}
+//删除后的提示
+function handleResult(result){
+	if(result == 1){
+		top.Dialog.alert("删除成功！");
+		grid.loadData();
+	}else{
+		top.Dialog.alert("删除失败！");
+	}
+}
+
+//获取所有选中行获取选中行的id 格式为 ids=1&ids=2 
+function getSelectIds(grid) {
+	console.log(selectedRows);
+	var selectedRows = grid.getSelectedRows();
+	var selectedRowsLength = selectedRows.length;
+	var ids = "";
+	
+	for(var i = 0;i<selectedRowsLength;i++) {
+		ids += selectedRows[i].ID + ",";
+	}
+	
+	//去掉末尾的","号
+	ids = ids.substring(0, ids.length-1);
+	
+	return {"ids":ids};
+}
+
+
+//查询
+function searchHandler(){
+	var query = $("#queryForm").formToArray(); 
+    grid.setOptions({ params : query});
+    //页号重置为1
+    grid.setNewPage(1);
+    grid.loadData();//加载数据
+}
+
+//重置查询
+function resetSearch(){
+	$("#queryForm")[0].reset();
+   $('#search').click();
+}
+
+//刷新表格数据并重置排序和页数
+function refresh(isUpdate){
+	if(!isUpdate){
+		//重置排序
+    	grid.options.sortName='userId';
+    	grid.options.sortOrder="desc";
+    	//页号重置为1
+		grid.setNewPage(1);
+	}
+	
+	grid.loadData();
+}
+//供应商信息的导出功能
+function exportGysAndCer(){
+	window.location.href="/joinlist/exportGysAndCer?"+$("#queryForm").serialize();
+}
+
+</script>	
+</body>
+</html>

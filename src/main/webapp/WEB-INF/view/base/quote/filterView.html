@@ -1,0 +1,184 @@
+#include("/WEB-INF/view/common/qui/header.html")
+<link href="/libs/css/import_basic.css" rel="stylesheet" type="text/css"/>
+<link href="/libs/skins/#(qui_theme ?? 'blue')/style.css" rel="stylesheet" type="text/css" id="theme" themeColor="#(qui_theme ?? 'blue')" positionTarget="positionContent"/>
+<link href="/static/qui/system/#(qui_theme ?? 'blue')/skin/style.css" rel="stylesheet" type="text/css" id="skin" skinPath="static/qui/system/#(qui_theme ?? 'blue')/skin/"/>
+
+<!--数据表格start-->
+<script src="/libs/js/table/quiGrid.js" type="text/javascript"></script>
+<!--数据表格end-->
+
+</head>
+<body  style="padding:10px">
+<div class="box2" paneltitle="#(projectName ??)---竞买项目报价详情">
+
+	<form id="queryForm" method="post">
+		<!-- <input type="hidden" id="parentId" name="parentId" value="1"/> -->
+		<table>
+			<tr>
+				<td>物资编码：</td>
+				<td>
+					<input type="text" id="searchInput" name="quote.WZBM" />
+				</td>
+				<td>物资名称：</td>
+				<td>
+					<input type="text" id="searchInput" name="quote.WZMC" />
+				</td>
+				<td>规格型号：</td>
+				<td>
+					<input type="text" id="searchInput" name="quote.GGXH" />
+				</td>
+				<!-- <td>使用单位及地区：</td>
+				<td>
+					<input type="text" id="searchInput" name="quote.SYDWJDQ" />
+				</td> -->
+				<td>是否有效报价：</td>
+					<td>
+						<select name="quote.SFYXBJ" id="searchInput" style="text-align: center">
+							<option value="">请选择</option>
+							<option value="是">是</option>
+							<option value="否">否</option>
+						</select>
+					</td>
+				<td>序号：</td>
+				<td>
+					<input type="text" id="searchInput" name="XH" />
+				</td>
+				<td>供应商编码：</td>
+				<td>
+					<input type="text" id="searchInput" name="supplier.GYSBH" />
+				</td>
+				<td>供应商名称：</td>
+				<td>
+					<input type="text" id="searchInput" name="supplier.QYMC" />
+				</td>
+				<td><button type="button" onclick="searchHandler()"><span class="icon_find">查询</span></button></td>
+				<td><button type="button" onclick="resetSearch()"><span class="icon_reload">重置</span></button></td>
+				<td><button type="button" onclick="exportExcel()"><span class="icon_export">导出</span></button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+<div id="dataBasic"></div>
+
+
+<script type="text/javascript">
+	var grid = null;
+
+	grid = $("#dataBasic").quiGrid({
+		columns:[
+			{ display: '包件号', name: 'BJH', align: 'center', editor: { type: 'text'}, width: '3%'},
+			{ display: '序号', name: 'XH', align: 'center', editor: { type: 'text'}, width: '3%'},
+			{ display: '供应商编码', name: 'GYSBH', align: 'center', editor: { type: 'text'}, width: '3%'},
+			{ display: '企业名称', name: 'QYMC', align: 'center', editor: { type: 'text'}, width: '7%'},
+			{ display: '物资编码', name: 'WZBM', align: 'center', editor: { type: 'text'}, width: '8%'},
+			{ display: '物资名称', name: 'WZMC', align: 'center', editor: { type: 'text'}, width: '6%'},
+			{ display: '规格型号', name: 'GGXH', align: 'center', editor: { type: 'text'}, width: '6%'},
+			{ display: '技术要求', name: 'JSYQ', align: 'center', editor: { type: 'text'}, width: '6%'},
+			{ display: '计量单位', name: 'JLDW', align: 'center', editor: { type: 'text'}, width: '6%'},
+			{ display: '预测数量', name: 'YCSL', align: 'center', editor: { type: 'text'}, width: '6%'},
+			{ display: '单价限价（不含税）', name: 'DJXJ_BHS', align: 'center', editor: { type: 'text'}, width: '6%'},
+			{ display: '总限价（不含税）', name: 'ZXJ_BHS', align: 'center', editor: { type: 'text'}, width: '6%'},
+			{ display: '使用单位及地区', name: 'SYDWJDQ', align: 'center', editor: { type: 'text'}, width: '7%'},
+			/* { display: '厂商报单价（不含税）', name: 'CSBDJ_BHS', align: 'center', editor: { type: 'text'}, width: '7%', 
+				render: function (rowdata, rowindex, value, column){
+					if(value==0){
+						return value+"";
+						}
+					if(value*1 > rowdata.DJXJ_BHS*1) {
+		        	    return "<span style='color:red'>"+value+"</span>";
+					}
+					return value;
+	 			}
+			},
+			{ display: '厂商报总限价（不含税）', name: 'CSBZXJ_BHS', align: 'center', editor: { type: 'text'}, width: '7%',
+				render: function (rowdata, rowindex, value, column){
+					if(value==0){
+						return value+"";
+					}
+					if(value*1 > rowdata.ZXJ_BHS*1) {
+		        	    return "<span style='color:red'>"+value+"</span>";
+					}
+					return value;
+	 			}
+			},
+			{ display: '有效报价', name: 'SFYXBJ', align: 'center', editor: { type: 'text'}, width: '7%', 
+				render: function (rowdata, rowindex, value, column){
+					console.dir(grid);
+					console.dir(grid.getData()[rowindex]);
+						var sfyxbj = grid.getData()[rowindex].CSBZXJ_BHS;
+						var sfyxbj2 = grid.getData()[rowindex].ZXJ_BHS;
+						var sfyxbj3 = grid.getData()[rowindex].CSBZXJ_BHS;
+						if(sfyxbj==0 || sfyxbj3>sfyxbj2){
+							return "<span style='color:red'>否</span>";
+						}else{
+							return "是";
+						}
+					
+			}}, */
+			/*{ display: '厂商报单价(不含税）', name: 'CSBDJ_BHS', align: 'center', editor: { type: 'text'}, width: '7%'},
+			{ display: '厂商报总限价（不含税）', name: 'CSBZXJ_BHS', align: 'center', editor: { type: 'text'}, width: '7%'},*/
+			{ display: '厂商报单价（不含税）', name: 'CSBDJ_BHS', align: 'center', editor: { type: 'text'}, width: '7%', 
+				render: function (rowdata, rowindex, value, column){
+					
+					if(value===0){
+						return "<span style='color:red'>"+value+"</span>";
+						}
+					if(value*1 > rowdata.DJXJ_BHS*1) {
+		        	    return "<span style='color:red'>"+value+"</span>";
+					}
+					return value;
+	 			}
+			},
+			{ display: '厂商报总限价（不含税）', name: 'CSBZXJ_BHS', align: 'center', editor: { type: 'text'}, width: '7%',
+				render: function (rowdata, rowindex, value, column){
+					if(value==0){
+						return "<span style='color:red'>"+value+"</span>";
+						}
+					if(value*1 > rowdata.ZXJ_BHS*1) {
+		        	    return "<span style='color:red'>"+value+"</span>";
+					}
+					return value;
+	 			}
+			},
+			{ display: '有效报价', name: 'SFYXBJ', align: 'center', editor: { type: 'text'}, width: '7%', 
+				render: function (rowdata, rowindex, value, column){
+					console.dir(grid);
+					console.dir(grid.getData()[rowindex]);
+						var sfyxbj = grid.getData()[rowindex].CSBZXJ_BHS;
+						var sfyxbj2 = grid.getData()[rowindex].ZXJ_BHS;
+						var sfyxbj3 = grid.getData()[rowindex].CSBZXJ_BHS;
+						if(sfyxbj==0 || sfyxbj3>sfyxbj2){
+							return "<span style='color:red'>否</span>";
+						}else{
+							return "是";
+						}
+					
+			}},
+		  ],
+	 url: '/quote/filterList?quote.PROJECT_ID=#(projectId)', sortName: 'userId',rownumbers:true,checkbox:false,
+	 height: '100%', width:"100%", usePager:false, percentWidthMode:true
+	});
+			
+	//查询
+	function searchHandler(){
+		var query = $("#queryForm").serializeArray(); 
+	    grid.setOptions({params : query});
+	    //页号重置为1
+	    grid.setNewPage(1);
+	    //加载数据
+	    grid.loadData();
+	}
+	
+	function exportExcel() {
+		window.location.href = "/quote/filterDataExport?quote.PROJECT_ID=#(projectId)&"+$("#queryForm").serialize();
+	}
+	
+	//重置查询
+	function resetSearch(){
+		$("#queryForm")[0].reset();
+	    $('#search').click();
+	}
+	
+</script>	
+</body>
+</html>

@@ -1,0 +1,8 @@
+/target/
+.classpath
+.project
+.settings/
+gysglbj.log
+temp
+/src/main/webapp/upload/
+

@@ -1,0 +1,201 @@
+#include("/WEB-INF/view/common/qui/header.html")
+
+<!-- 树组件start -->
+<script type="text/javascript" src="/libs/js/tree/ztree/ztree.js"></script>
+<link type="text/css" rel="stylesheet" href="/libs/js/tree/ztree/ztree.css"></link>
+<!-- 树组件end -->
+
+<!-- 树形下拉框start -->
+<script type="text/javascript" src="/libs/js/form/selectTree.js"></script>
+<!-- 树形下拉框end -->
+
+<!-- 表单验证start -->
+<script src="/libs/js/form/validationRule.js" type="text/javascript"></script>
+<script src="/libs/js/form/validation.js" type="text/javascript"></script>
+<!-- 表单验证end -->
+
+<!-- 日期选择框start -->
+<script type="text/javascript" src="/libs/js/form/datePicker/WdatePicker.js"></script>
+<!-- 日期选择框end -->
+<script type="text/javascript" src="/libs/js/myjs/jquery.form.js"></script>
+</head>
+<body>
+<div class="box1" overflow="true" panelHeight="400" id="formContent" whiteBg="true">
+	<form id="myFormId" onsubmit="return false;" method="post">
+	<table class="tableStyle" formMode="transparent">
+	
+	<input type="hidden" name="cersuppliestemplate.ID" value="#(cersuppliestemplate.ID ??)" />
+				<tr>
+					<td width="200">企业名称：</td>
+					<td><input type='text' name='cersuppliestemplate.QYMC2'
+						value='#(cersuppliestemplate.QYMC2 ??)'
+						class=''/></td>
+				</tr>
+				<tr>
+					<td width="200">证书类别：</td>
+					<td><input type='text' name='cersuppliestemplate.ZSLB2'
+						value='#(cersuppliestemplate.ZSLB2 ??)'
+						class=''/></td>
+				</tr>
+				<tr>
+					<td width="200">物资类别：</td>
+					<td><input type='text' name='cersuppliestemplate.LB'
+						value='#(cersuppliestemplate.LB ??)'
+						class=''/></td>
+				</tr>
+				<tr>
+					<td width="200">物资编码：</td>
+					<td><input type='text' name='cersuppliestemplate.WZBM'
+						value = '#(cersuppliestemplate.WZBM ??)'
+						class = 'validate[required,length[0,30]]'/><span class='star'>*</span></td>
+				</tr>
+				<tr>
+					<td width="200">物资名称：</td>
+					<td><input type='text' name='cersuppliestemplate.WZMC'
+						value='#(cersuppliestemplate.WZMC ??)'
+						class=''/></td>
+				</tr>
+				<tr>
+					<td width="200">规格型号：</td>
+					<td><input type='text' name='cersuppliestemplate.GGXH'
+						value='#(cersuppliestemplate.GGXH ??)'
+						class=''/></td>
+				</tr>
+				<tr>
+					<td width="200">计量单位：</td>
+					<td><input type='text' name='cersuppliestemplate.JLDW'
+						value='#(cersuppliestemplate.JLDW ??)'
+						class=''/></td>
+				</tr>
+				<tr>
+					<td width="200">备注：</td>
+					<td>
+					<textarea name="cersuppliestemplate.BZ" style="width: 152px;">#(cersuppliestemplate.BZ ??)</textarea>
+					<!-- <input style="width: 116px;" name='cersuppliestemplate.BZ'
+						value='#(cersuppliestemplate.BZ ??)'
+						class=''></input> --><!-- <input type='text' name='cersuppliestemplate.BZ'
+						value='#(cersuppliestemplate.BZ ??)'
+						class=''/> --></td>
+				</tr>
+				<tr>
+					<td>实物图片：</td>
+				</tr>
+				<tr>
+				<td>
+					<img id="uploadpicId0"  src="#(cersuppliestemplate.SWTP ??)" alt="" style="width: 100px;"/>
+					<img id="uploadpicId1"  src="#(cersuppliestemplate.SWTP2 ??)" alt="" style="width: 100px;"/>
+					<img id="uploadpicId2"  src="#(cersuppliestemplate.SWTP3 ??)" alt="" style="width: 100px;"/>
+				</td> 
+				<td>
+					<input  type='file' name='images' multiple="multiple" onchange="uploadPic()" />
+					<input id="swzp0" type="hidden" name="cersuppliestemplate.SWTP" value="#(cersuppliestemplate.SWTP ??)">
+					<input id="swzp1" type="hidden" name="cersuppliestemplate.SWTP2" value="#(cersuppliestemplate.SWTP2 ??)">
+					<input id="swzp2" type="hidden" name="cersuppliestemplate.SWTP3" value="#(cersuppliestemplate.SWTP3 ??)">
+				</td>
+				</tr>
+				
+				<tr>
+					<td colspan="2">
+					<button onclick="submitHandler()">提交</button>
+					<input type="button" value="取消" onclick='top.Dialog.close()'/>
+					</td>
+				</tr>
+	</table>
+	</form>
+</div>
+<!-- 异步提交start -->
+<script type="text/javascript">
+
+function submitHandler() {
+	var valid = $('#myFormId').validationEngine({returnIsValid: true});
+	if(valid){
+		$.post("/cersuppliestemplate/save", $('#myFormId').serializeArray(), function(data) {
+			top.Dialog.alert(data.message, function(){ 
+            	if(!data.content){		            		
+	            	closeWin();
+            	} else {
+            		top.Dialog.alert(data.content);
+            	}
+            })
+		});
+	 }else{
+		 top.Dialog.alert('表单填写不正确，请按要求修改红色框内容!');
+		} 
+}
+
+function initComplete(){
+    //初始化
+	//selectUnit(document.getElementById("id_unit_input"));
+}
+
+//重置
+function closeWin(){
+	var update = false;
+	var isupdate = '#(cersuppliestemplate ??)';
+	if(isupdate != ''){
+		update = true;
+	}else{
+		update = false;
+	}
+	//刷新数据
+	top.frmright.refresh(update);
+	//关闭窗口
+	top.Dialog.close();
+}
+
+function uploadPic(){
+	var picoption = { 
+		 type: "post",  //提交方式  
+		 dataType: "json", //数据类型  
+		 url:"/cersuppliestemplate/uploadPic",//默认是form action
+		 success:function(data){
+			 var a = "0",
+			 b = parseInt(a);
+			for(var x = 0;x<data.length;x++){
+				if(data[x].error == 0 ){
+					var imsrc = "#uploadpicId"+x;
+					var hisrc = "#swzp"+x;
+					$(imsrc).attr("src",data[x].src);
+					$(hisrc).val(data[x].src);
+					/* if(b == 0){
+						$("#uploadpicId0").attr("src",data[0].src);
+						$("#swzp0").val(data[0].src);
+					}
+					if(b == 1){
+						$("#uploadpicId0").attr("src",data[0].src);
+						$("#swzp0").val(data[0].src);
+					}
+					if(b == 2){
+						$("#uploadpicId0").attr("src",data[0].src);
+						$("#swzp0").val(data[0].src);
+					}
+					b = b+1; */
+					}else{
+						top.Dialog.alert(data.message);
+					}
+				}
+			},
+		  error : function(data, status) {
+		   			top.Dialog.alert(data.message);
+		        }
+		};
+		$("#myFormId").ajaxSubmit(picoption);
+			/* 
+		success:function(data){
+			if(data.error == 0 ){
+				console.log(data)
+				$("#uploadpicId").attr("src",data.src);
+				$("#swzp").val(data.src);
+				}else{
+					top.Dialog.alert(data.message);
+				}
+			},
+	    error : function(data, status) {
+	    			top.Dialog.alert(data.message);
+	        }
+		} */
+	}
+</script>
+<!-- 异步提交end -->	
+</body>	
+</html>

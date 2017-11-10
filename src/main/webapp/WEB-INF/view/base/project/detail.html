@@ -1,0 +1,23 @@
+#include("/WEB-INF/view/common/qui/header.html")
+</head>
+<body>
+	<div class="box1" id="formContent" whiteBg="true">
+		<table class="tableStyle" formMode="view">
+			<tr><th colspan="2">详细信息</th></tr>
+			<tr>
+			<td width="10%">名称：</td><td width="30%">#(project.NAME ??)</td>
+			</tr>
+			<tr>
+			<td width="10%">编号：</td><td width="30%">#(project.NO ??)</td>
+			</tr>
+			<tr>
+			<td width="10%">类型：</td><td width="30%">#(project.TYPE==1 ? '竞买':'竞价' ??)</td>
+			</tr>
+			<tr rowspan="1"><td>备注：</td><td colspan="1">#(project.REMARK ??)</td></tr>
+			<tr>
+			<td width="10%">录入时间：</td><td width="30%">#(project.ENTRY_TIME ??)</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>

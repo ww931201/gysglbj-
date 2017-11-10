@@ -1,0 +1,477 @@
+#include("/WEB-INF/view/common/qui/header.html")
+<!--数据表格start-->
+<script src="../../libs/js/table/quiGrid.js" type="text/javascript"></script>
+<!--数据表格end-->
+
+<!--表单异步提交start-->
+<script src="../../libs/js/form/form.js" type="text/javascript"></script>
+<!--表单异步提交end-->
+<!--弹出式提示框start-->
+
+<script type="text/javascript" src="/libs/js/popup/messager.js"></script>
+</head>
+<body>
+<table width="100%">
+	<tbody>
+		<tr>
+			<td class="ver01">
+				<div class="box2" panelHeight="300px" paneltitle="项目">
+					<form id="queryFormProject" method="post">
+						<table>
+							<tr>
+								<td>名称：</td>
+								<td>
+									<input type="text" id="searchInput" name="project.NAME" />
+								</td>
+								<td>编号：</td>
+								<td>
+									<input type="text" id="searchInput" name="project.NO" />
+								</td>
+								<td><button type="button" onclick="searchHandlerProject()"><span class="icon_find">查询</span></button></td>
+								<td><button type="button" onclick="resetSearchProject()"><span class="icon_reload">重置</span></button></td>
+							</tr>
+						</table>
+					</form>
+					<div id="dataBasicProject"></div>
+				</div>
+			</td>
+			
+			<!-- <td width="90%" class="ver01">
+				<div class="box2" paneltitle="项目报价详情">
+										<form id="queryForm" method="post">
+						<input type="hidden" id="parentId" name="parentId" value="1"/>
+						<table>
+							<tr>
+								<td>物资编码：</td>
+								<td>
+									<input type="text" id="searchInput" name="quote.WZBM" />
+								</td>
+								<td>物资名称：</td>
+								<td>
+									<input type="text" id="searchInput" name="quote.WZMC" />
+								</td>
+								<td>规格型号：</td>
+								<td>
+									<input type="text" id="searchInput" name="quote.GGXH" />
+								</td>
+								<td>使用单位及地区：</td>
+								<td>
+									<input type="text" id="searchInput" name="quote.SYDWJDQ" />
+								</td>
+								<td><button type="button" onclick="searchHandler()"><span class="icon_find">查询</span></button></td>
+								<td><button type="button" onclick="resetSearch()"><span class="icon_reload">重置</span></button></td>
+							</tr>
+						</table>
+					</form>
+					<div id="dataBasic"></div>
+				</div>
+			</td>  -->
+		</tr>
+		<tr>
+			<td width="90%" class="ver01">
+				<div class="box2" paneltitle="项目报价详情">
+										<form id="queryForm" method="post">
+						<input type="hidden" id="parentId" name="parentId" value="1"/>
+						<table>
+							<tr>
+								<td>企业名称：</td>
+								<td>
+									<input type="text" id="searchInput" name="supplier.QYMC" />
+								</td>
+								<td>供应商编号：</td>
+								<td>
+									<input type="text" id="searchInput" name="supplier.GYSBH" />
+								</td>
+								<td>物资编码：</td>
+								<td>
+									<input type="text" id="searchInput" name="quote.WZBM" />
+								</td>
+								<td>物资名称：</td>
+								<td>
+									<input type="text" id="searchInput" name="quote.WZMC" />
+								</td>
+								<td>规格型号：</td>
+								<td>
+									<input type="text" id="searchInput" name="quote.GGXH" />
+								</td>
+								<!-- <td>使用单位及地区：</td>
+								<td>
+									<input type="text" id="searchInput" name="quote.SYDWJDQ" />
+								</td> -->
+								<td>是否有效报价：</td>
+								
+								<td>
+									<!-- <input type="text" id="searchInput" name="quote.SYDWJDQ" /> -->
+									<select name="quote.SFYXBJ" id="searchInput" style="text-align: center">
+										<option value="">请选择</option>
+										<option value="是">是</option>
+										<option value="否">否</option>
+									</select>
+								</td>
+								<td><button type="button" onclick="searchHandler()"><span class="icon_find">查询</span></button></td>
+								<td><button type="button" onclick="resetSearch()"><span class="icon_reload">重置</span></button></td>
+								<td><button type="button" onclick="importExcelByJM()"><span class="icon_reload">导出</span></button></td>
+							</tr>
+						</table>
+					</form>
+					<div id="dataBasic"></div>
+				</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<script type="text/javascript">
+
+var grid = null;
+var gridProject = null;
+var typeData = {list:[{value:1,key:"竞买"},{value:2,key:"竞价"}]};
+
+function initComplete(){
+	//当提交表单刷新本页面时关闭弹窗
+	top.Dialog.close();
+	/**/
+	gridProject = $("#dataBasicProject").quiGrid({
+		columns:[
+			{ display: '名称', name: 'NAME', align: 'center', editor: { type: 'text'}, width: '20%'},
+			{ display: '编号', name: 'NO', align: 'center', editor: { type: 'text'}, width: '20%'},
+			{ display: '类型', name: 'TYPE', align: 'center', editor: { type: 'select', data: typeData}, width: '20%',render:function (item){
+             	 for (var i = 0; i < typeData["list"].length; i++) {
+                     if (typeData["list"][i]['value'] == item.TYPE)
+                         return typeData["list"][i]['key']
+                 }
+                 return item.TYPE;
+	        }},
+			{ display: '录入时间', name: 'ENTRY_TIME', align: 'center', editor: { type: 'text'}, width: '20%'},
+       		{ display: '操作', isAllowHide: false, align: 'center', width:'20%',
+				 render: function (rowdata, rowindex, value, column){
+                	    return '<div class="padding_top4 padding_left5">'
+                                + '<span class="img_list hand my-permission" data-permisson="/project/detailView" title="查看" onclick='+'onViewProject("' + rowdata.ID + '")'+'></span>'
+                                + '<span class="img_edit hand my-permission" data-permisson="/project/updateView" title="修改" onclick='+'onEditProject("' + rowdata.ID + '")'+'></span>' 
+                                + '<span class="img_delete hand my-permission" data-permisson="/project/delete" title="删除" onclick='+'onDeleteProject("' + rowdata.ID+'",'+rowindex + ')'+'></span>'
+                                + '<span class="img_export hand my-permission" data-permisson="/project/export" title="模板" onclick='+'onExport("' + rowdata.ID + '")'+'></span>'
+                           	  + '</div>';
+                 }
+            }
+		  ],
+	    url: '/project/list', rownumbers:true,checkbox:false,minColumnWidth:100,
+        width:"100%",pageSize:5,percentWidthMode:true,
+     	onSelectRow: function (rowdata) {
+		$("#message").remove();
+		
+   	    //页号重置为1
+   	    grid.setNewPage(1);
+    	grid.setOptions({url : "/quote/list?quote.PROJECT_ID="+rowdata.ID});
+
+		$.post("/gys/findProjectOverDate",{ PROJECT_ID: rowdata.ID },function(data){
+			if(data.length < 1) return; 
+			var html = "<div>";
+			for(var i = 0; i<data.length;i++){
+					html += "<div>"+data[i].GYSBH+"-"+data[i].QYMC+"</div>";
+				}
+			 html +="</div>";
+			 $.messager.lays(400,200)
+			 $.messager.show('以下供应商资质有效期不满一年即将过期',html,'stay');
+				console.log($.messager.title);
+		});
+   		 return false;
+     },
+     onAfterShowData: function (data){
+    	 refreshPermssion();
+     }, 
+     toolbar:{
+    	 items:[
+    		  {text: '新增', click: addProject, iconClass: 'icon_add', per:'/project/addView', perClass: 'my-permission'},
+    	 ]
+     	}
+	});
+	grid = $("#dataBasic").quiGrid({
+		columns:[
+			{ display: '', hide:true, name: 'PROJECT_ID', align: 'center', editor: { type: 'text'}, width: '8'},
+			{ display: '包件号', name: 'BJH', align: 'center', editor: { type: 'text'}, width: '3%'},
+			{ display: '供应商编号', name: 'GYSBH', align: 'center', editor: { type: 'text'}, width: '3%'},
+			{ display: '企业名称', name: 'QYMC', align: 'center', editor: { type: 'text'}, width: '10%'},
+			{ display: '物资编码', name: 'WZBM', align: 'center', editor: { type: 'text'}, width: '10%'},
+			{ display: '物资名称', name: 'WZMC', align: 'center', editor: { type: 'text'}, width: '6%'},
+			{ display: '规格型号', name: 'GGXH', align: 'center', editor: { type: 'text'}, width: '6%'},
+			{ display: '技术要求', name: 'JSYQ', align: 'center', editor: { type: 'text'}, width: '4%'},
+			{ display: '计量单位', name: 'JLDW', align: 'center', editor: { type: 'text'}, width: '3%'},
+			{ display: '预测数量', name: 'YCSL', align: 'center', editor: { type: 'text'}, width: '3%'},
+			{ display: '单价限价(不含税）', name: 'DJXJ_BHS', align: 'center', editor: { type: 'text'}, width: '6%'},
+			{ display: '总限价（不含税）', name: 'ZXJ_BHS', align: 'center', editor: { type: 'text'}, width: '6%'},
+			{ display: '使用单位及地区', name: 'SYDWJDQ', align: 'center', editor: { type: 'text'}, width: '7%'},
+			/*{ display: '厂商报单价(不含税）', name: 'CSBDJ_BHS', align: 'center', editor: { type: 'text'}, width: '7%'},
+			{ display: '厂商报总限价（不含税）', name: 'CSBZXJ_BHS', align: 'center', editor: { type: 'text'}, width: '7%'},*/
+			{ display: '厂商报单价（不含税）', name: 'CSBDJ_BHS', align: 'center', editor: { type: 'text'}, width: '3%', 
+				render: function (rowdata, rowindex, value, column){
+					
+					if(value===0){
+						return "<span style='color:red'>"+value+"</span>";
+						}
+					if(value*1 > rowdata.DJXJ_BHS*1) {
+		        	    return "<span style='color:red'>"+value+"</span>";
+					}
+					return value;
+	 			}
+			},
+			{ display: '厂商报总限价（不含税）', name: 'CSBZXJ_BHS', align: 'center', editor: { type: 'text'}, width: '3%',
+				render: function (rowdata, rowindex, value, column){
+					if(value==0){
+						return "<span style='color:red'>"+value+"</span>";
+						}
+					if(value*1 > rowdata.ZXJ_BHS*1) {
+		        	    return "<span style='color:red'>"+value+"</span>";
+					}
+					return value;
+	 			}
+			},
+			{ display: '有效报价', name: 'SFYXBJ', align: 'center', editor: { type: 'text'}, width: '3%', 
+				render: function (rowdata, rowindex, value, column){
+					console.dir(grid);
+					console.dir(grid.getData()[rowindex]);
+						var sfyxbj = grid.getData()[rowindex].CSBZXJ_BHS;
+						var sfyxbj2 = grid.getData()[rowindex].ZXJ_BHS;
+						var sfyxbj3 = grid.getData()[rowindex].CSBZXJ_BHS;
+						if(sfyxbj==0 || sfyxbj3>sfyxbj2){
+							return "<span style='color:red'>否</span>";
+						}else{
+							return "是";
+						}
+					
+			}},
+			/* ID */
+       		{ display: '操作', isAllowHide: false, align: 'center', width:'4%',
+				 render: function (rowdata, rowindex, value, column){
+                	    return '<div class="padding_top4 padding_left5">'
+                                + '<span class="img_list hand my-permission" data-permisson="/quote/detailView" title="查看" onclick='+'onView("' + rowdata.ID + '")'+'></span>'
+                                + '<span class="img_edit hand my-permission" data-permisson="/quote/updateView" title="修改" onclick='+'onEdit("' + rowdata.ID + '")'+'></span>' 
+                                + '<span class="img_delete hand my-permission" data-permisson="/quote/delete" title="删除" onclick='+'onDelete("' + rowdata.ID+'",'+rowindex + ')'+'></span>'
+                           	  + '</div>';
+                 }
+            }
+		  ],
+	 url: '/quote/list', sortName: 'userId',rownumbers:true,checkbox:true,
+     height: '100%', width:"100%",pageSize:10,percentWidthMode:true,
+     headerRowHeight: 40,
+     onAfterShowData: function (data){
+    	 refreshPermssion();
+     }, 
+     toolbar:{
+    	 items:[
+    		  {text: '导入', click: importQuote,    iconClass: 'icon_import', per: '/quote/importView', perClass: 'my-permission'},
+    		  //{ line : true },
+    		  //{text: '新增', click: addQuote,    iconClass: 'icon_add'},
+    		  { line : true },
+    		  {text: '批量删除', click: deleteUnit, iconClass: 'icon_delete', per: '/quote/deleteBatch', perClass: 'my-permission'},
+    		  { line : true },
+    		  {text: '筛选', click: filterView, iconClass: 'icon_search', per: '/quote/filterList', perClass: 'my-permission'}
+    		]
+     	}
+	});
+
+	
+	//监听查询框的回车事件
+	 $("#searchInput").keydown(function(event){
+	 	if(event.keyCode==13){
+			searchHandler();
+		}
+	 })
+	 
+	 $("#searchPanel").bind("stateChange",function(e,state){
+		grid.resetHeight();
+	});
+}
+
+//查看
+function onViewProject(rowid){
+	top.Dialog.open({
+		URL:"/project/detailView?id="+rowid,
+		Title:"查看",Width:500,Height:280});
+}
+//新增
+function addProject() {
+	top.Dialog.open({
+			URL:"/project/addView",
+			Title:"添加",Width:500,Height:280});
+}
+//修改	
+function onEditProject(rowid){
+	top.Dialog.open({
+		URL:"/project/updateView?id=" + rowid,
+		Title:"修改",Width:500,Height:280});
+}
+//删除	
+function onDeleteProject(rowid, rowidx){
+	top.Dialog.confirm("确定要删除该记录吗？",function(){
+	  	//删除记录
+	  	$.post("/project/delete",
+	  			{"id":rowid},
+	  			function(result){
+	  				handleResult(result.status);
+				},"json");
+				//刷新表格
+				gridProject.loadData();
+		});
+}
+//导出项目模板
+function onExport(rowid){
+	location.href = "/project/export?id="+rowid;
+}
+
+function filterView() {
+	
+	var row = gridProject.getSelectedRow();
+	if(row == null) { top.Dialog.alert("请选中一条项目记录!"); return;}
+	var proid = grid.getData()[0].PROJECT_ID;
+	//window.open("/quote/filterView?projectId="+row.ID);
+	window.open("/quote/filterView?projectId="+proid);
+	/*
+	top.Dialog.open({
+		URL:"/quote/filterView?projectId="+row.ID,
+		Title:"筛选",Width:1024,Height:550});
+	*/
+}
+var dialogImport = new top.Dialog();
+
+//导入
+function importQuote() {
+	
+	var row = gridProject.getSelectedRow();
+	if(row == null) { top.Dialog.alert("请选中一条项目记录!"); return;}
+	
+	dialogImport.Title = "导入模板";
+	dialogImport.URL = "/quote/importView?projectId="+row.ID;
+	dialogImport.Height = 150;
+	dialogImport.Width = 350;
+	dialogImport.show();
+	
+}
+//新增
+function addQuote() {
+	top.Dialog.open({
+			URL:"/quote/addView",
+			Title:"添加",Width:600,Height:500});
+}
+//查看
+function onView(rowid){
+	top.Dialog.open({
+		URL:"/quote/detailView?id="+rowid,
+		Title:"查看",Width:600,Height:600});
+}
+//修改	
+function onEdit(rowid){
+	top.Dialog.open({
+		URL:"/quote/updateView?id=" + rowid,
+		Title:"修改",Width:600,Height:500});
+}
+//删除	
+function onDelete(rowid,rowidx){
+	top.Dialog.confirm("确定要删除该记录吗？",function(){
+	  	//删除记录
+	  	$.post("/quote/delete",
+	  			{"id":rowid},
+	  			function(result){
+	  				handleResult(result.status);
+				},"json");
+				//刷新表格
+				grid.loadData();
+		});
+}
+	
+	
+//批量删除
+function deleteUnit() {
+	var rows = grid.getSelectedRows();
+	var rowsLength = rows.length;
+	
+	if(rowsLength == 0) {
+		top.Dialog.alert("请选中要删除的记录!");
+		return;
+	}
+	top.Dialog.confirm("确定要删除吗？",function(){
+		$.post("/quote/deleteBatch",
+					//获取所有选中行
+					getSelectIds(grid),
+					function(result){
+						handleResult(result.status);
+					},
+					"json");
+		});
+}
+//删除后的提示
+function handleResult(result){
+	if(result == 1){
+		top.Dialog.alert("删除成功！",null,null,null,1);
+		grid.loadData();
+	}else{
+		top.Dialog.alert("删除失败！");
+	}
+}
+
+//获取所有选中行获取选中行的id 格式为 ids=1&ids=2 
+function getSelectIds(grid) {
+	var selectedRows = grid.getSelectedRows();
+	var selectedRowsLength = selectedRows.length;
+	var ids = "";
+	
+	for(var i = 0;i<selectedRowsLength;i++) {
+		ids += selectedRows[i].ID + ",";
+	}
+	
+	//去掉末尾的","号
+	ids = ids.substring(0, ids.length-1);
+	
+	return {"ids":ids};
+}
+
+//查询(项目)
+function searchHandlerProject(){
+	var query = $("#queryFormProject").formToArray(); 
+    gridProject.setOptions({ params : query});
+    //页号重置为1
+    gridProject.setNewPage(1);
+    gridProject.loadData();//加载数据
+}
+//查询
+function searchHandler(){
+	var query = $("#queryForm").formToArray(); 
+    grid.setOptions({ params : query});
+    //页号重置为1
+    grid.setNewPage(1);
+    grid.loadData();//加载数据
+}
+
+//重置查询(项目)
+function resetSearchProject(){
+	$("#queryFormProject")[0].reset();
+    $('#searchProject').click();
+}
+//重置查询
+function resetSearch(){
+	$("#queryForm")[0].reset();
+    $('#search').click();
+}
+
+//刷新表格数据并重置排序和页数
+function refresh(isUpdate){
+	if(!isUpdate){
+		//重置排序
+    	grid.options.sortName='userId';
+    	grid.options.sortOrder="desc";
+    	//页号重置为1
+		grid.setNewPage(1);
+	}
+	grid.loadData();
+}
+
+function importExcelByJM() {
+	var row = gridProject.getSelectedRow();
+	if(row == null) { top.Dialog.alert("请选中一条项目记录!"); return;}
+	var row = gridProject.getSelectedRow();
+	//window.location.href = "/quote/filterDataExport2?quote.PROJECT_ID=#(projectId)&"+$("#queryForm").serialize();
+	//window.location.href = "/quote/filterDataExport2?quote.PROJECT_ID=#(projectId)&"+$("#queryForm").serialize();
+	window.location.href = "/quote/filterDataExport2?quote.PROJECT_ID="+row.ID+"&"+$("#queryForm").serialize();
+}
+</script>	
+</body>
+</html>

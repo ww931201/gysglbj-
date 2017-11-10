@@ -1,0 +1,52 @@
+#include("/WEB-INF/view/common/qui/header.html")
+</head>
+<body>
+	<div class="box1"  overflow="true" panelHeight="250" id="formContent" whiteBg="true">
+	<table class="tableStyle" formMode="view">
+			<tr>
+				<td width="50%">编号</td>
+				<td>#(certificate.NO ??)</td>
+			</tr>
+			<tr>
+				<td>名称</td>
+				<td>#(certificate.NAME ??)</td>
+			</tr>
+			<tr>
+				<td>内容</td>
+				<td>#(certificate.CONTENT ??)</td>
+			</tr>
+			<tr>
+				<td>证书有效期(起始日期)</td>
+				<td>#(certificate.START_TIME ??)</td>
+			</tr>
+			<tr>
+				<td>证书有效期(终止日期)</td>
+				<td>#(certificate.END_TIME ??)</td>
+			</tr>
+			<tr>
+				<td>发证单位</td>
+				<td>#(certificate.UNIT ??)</td>
+			</tr>
+			<tr>
+				<td>证书类别</td>
+				<td>#(certificate.ZSLB ??)</td>
+			</tr>
+			<tr>
+				<td>证书信息</td>
+				<td>#(certificate.ZSXX ??)</td>
+			</tr>
+			<!-- <tr>
+				<td>物资编码</td>
+				<td><textarea disabled="false" style="width: 150px;">#(certificatesupcode.CODENAME ??)</textarea></td>
+				<td>#(certificatesupcode.CODENAME ??)</td>
+			</tr> -->
+			<tr>
+				<td>证书照片</td>
+				<td><img src="#(certificate.ZSZP ??)" style="width: 100px;"></br>
+				<img src="#(certificate.ZSZP2 ??)" style="width: 100px;"></br>
+				<img src="#(certificate.ZSZP3 ??)" style="width: 100px;"></td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>

@@ -1,0 +1,46 @@
+#include("/WEB-INF/view/common/qui/header.html")
+<script type="text/javascript" src="/libs/js/other/progressbar.js"></script>
+</head>
+<body>
+<div class="box11 padding5">
+    <span class="btn btn-success fileinput-button">
+        <i class="glyphicon glyphicon-plus"></i>
+        <span>选择要导入的excel文件(该文件必须为下载的对应模板)</span>
+        <input id="fileupload" type="file" name="excel" multiple  data-url="/quote/importExcel?projectId=#(projectId ??)">
+    </span><br>
+	<div id="pb1"></div><span id="pb1-label"></span>
+</div>
+
+<script type="text/javascript" src="/static/jQuery-File-Upload-9.18.0/js/vendor/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="/static/jQuery-File-Upload-9.18.0/js/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="/static/jQuery-File-Upload-9.18.0/js/jquery.fileupload.js"></script>
+<script type="text/javascript">
+
+var _progress;
+function initComplete(){
+    _progress = $("#pb1").progressCtrl({ skin: '/libs/images/loading/progress.png', width:300} ) ;   
+}
+$(function () {
+
+	// 导入数据
+	$('#fileupload').fileupload({
+        dataType: 'json',
+        done: function (e, data) {
+			console.log(data.result.msg)
+			if(data.result.msg){
+        		top.Dialog.alert(data.result.msg);
+        		top.frmright.grid.loadData();
+        		top.frmright.dialogImport.close();
+        	}else{
+        		top.frmright.dialogImport.close();
+        	}
+        },
+        progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            _progress.progressCtrl(progress)
+        }
+    });
+});
+</script>
+</body>
+</html>

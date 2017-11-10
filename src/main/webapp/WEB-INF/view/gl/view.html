@@ -1,0 +1,540 @@
+#include("/WEB-INF/view/common/qui/header.html")
+<!--数据表格start-->
+<script src="../../libs/js/table/quiGrid.js" type="text/javascript"></script>
+<!--数据表格end-->
+
+<!--表单异步提交start-->
+<script src="../../libs/js/form/form.js" type="text/javascript"></script>
+<!--表单异步提交end-->
+
+<!--弹出式提示框start-->
+
+<script type="text/javascript" src="/libs/js/popup/messager.js"></script>
+
+<!--弹出式提示框end-->
+
+<script src="/static/js/date.js" type="text/javascript"></script>
+
+<!--尺寸拖拽调整start-->
+<script type="text/javascript" src="/libs/js/drag/dragResize.js"></script>
+<!--尺寸拖拽调整end-->
+
+<!-- 日期选择框start -->
+<script type="text/javascript" src="/libs/js/form/datePicker/WdatePicker.js"></script>
+<!-- 日期选择框end -->
+
+<script src="/libs/jquery-ui.js"></script>
+
+</head>
+<body>
+<div class="box2" panelTitle="查询供应商企业" id="searchPanel">
+	<form id="queryForm" method="post">
+		<input type="hidden" id="parentId" name="parentId" value="1"/>
+		<table>
+			<tr>
+				<td></td>
+				<td>供应商编号：</td>
+				<td>
+					<input type="text" id="searchInput" name="supplier.GYSBH" />
+				</td>
+				<td>企业名称：</td>
+				<td>
+					<input type="text" id="searchInput" name="supplier.QYMC" />
+				</td>
+				<td>黑名单：</td>
+				<td>
+					<select name="supplier.HMD" id="searchInput" style="text-align: center">
+					<option value="">请选择</option>
+					<option value="是">是</option>
+					<option value="否">否</option>
+					</select>
+					<!-- <input type="text" id="searchInput" name="supplier.HMD" /> -->
+				</td>
+				<!-- <td>经营范围：</td>
+				<td>
+					<input type="text" id="searchInput" name="supplier.GYSJYFW" />
+				</td> -->
+				<!-- <td>物资编码：</td>
+				<td>
+					<input type="text" id="searchInput" name="certificatesupcode.CODE" />
+				</td> -->
+				
+				<td>证书类别：</td>
+					<td>
+					<select url="/cersort/ZslblList"
+							prompt="请选择" name="certificate.ZSLB" selectedValue="#(certificate.ZSLB ?? )"></select>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td>证书信息：</td>
+					<td>
+						<input type="text" id="searchInput" name="certificate.ZSXX" />
+					</td>
+				<td>供应商分类：</td>
+					<td>
+					<select url="/suppliersort/GysflList"
+							prompt="请选择" name="supplier.GYSFL" selectedValue="#(suppliersort.GYSSORTNAME ??)">
+							</select>
+					</td>
+				<td>供应商企业性质：</td>
+					<td>
+					<select name="supplier.GYSQYXZ">
+					    <option value="" >请选择</option>
+					    <option value="厂商" >厂商</option>
+					    <option value="代理商" >代理商</option>
+					    <option value="其他" >其他</option>
+					</select>
+					</td>
+				<td>资质截止日期：</td>
+					<td>
+					<input type='text' name='supplier.YXQ'
+						value='#(supplier.YXQ ??)'
+						class='date validate[custom[date]]' style="width:120px;" dateFmt="yyyy-MM-dd" /></td>
+				<td>等级评价：</td>
+					<td>
+					<select url="/suppliergrade/DjpjList"
+							prompt="请选择" name="supplier.BLGYSXYPJDJ" selectedValue="#(suppliergrade.GRADEPJ ?? )"></select>
+					</td>
+				<td><button type="button" onclick="searchHandler()"><span class="icon_find ">查询</span></button></td>
+				<td><button type="button" onclick="resetSearch()" style="width: 65px;"><span class="icon_reload ">重置</span></button></td>
+				<td><button type="button" onclick="exportGys()"><span class="icon_export ">导出</span></button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+	<div class="padding_right5">
+		<div id="dataBasic"></div>
+    </div>
+<script type="text/javascript">
+var tip = "2342"
+var grid = null;
+var childGrid = null;
+function openDetail(qymc) {
+	top.document.getElementById("frmright").src="/suppliestemplate?CSQYMC="+qymc;
+}
+
+function openDetails(zslb) {
+	top.document.getElementById("frmright").src="/cersuppliestemplate?CSZSLB="+zslb;
+}
+
+function initComplete(){
+	//当提交表单刷新本页面时关闭弹窗
+	top.Dialog.close();
+	/**/
+	grid = $("#dataBasic").quiGrid({
+		columns:[
+			{ display: '供应商编号', name: 'GYSBH', align: 'center', width: '7%'},
+			{ display: '社会信用代码', name: 'SHXYDM', align: 'center', width: '7%'},
+			/*{ display: '营业执照注册号', name: 'YYZZZCH', align: 'center', width: '3%'}, */
+			{ display: '企业名称', name: 'QYMC', align: 'center', width: '7%'},
+			{ display: '法定代表人', name: 'FDDBR', align: 'center', width: '7%'},
+			{ display: '法定代表人电话', name: 'FDDBRDH', align: 'center', width: '7%'},
+			/*{ display: '所属省', name: 'SSS', align: 'center', width: '3%'},
+			{ display: '所属市', name: 'SSS1', align: 'center', width: '3%'},
+			{ display: '住所', name: 'ZS', align: 'center', width: '3%'},
+			{ display: '注册资本', name: 'ZCZB', align: 'center', width: '7%'},*/
+			{ display: '成立日期', name: 'CLRQ', align: 'center', width: '7%'},
+			/*{ display: '营业期限', name: 'YYQX', align: 'center', width: '7%'},
+		  	{ display: '企业类型', name: 'QYLX', align: 'center', width: '7%'}, */
+			/* { display: '组织机构代码', name: 'ZZJGDM', align: 'center', width: '3%'},
+			{ display: '税务登记号', name: 'SWDJH', align: 'center', width: '3%'}, */
+			{ display: '有效期', name: 'YXQ', align: 'center', type:'dateRed', width: '7%'},
+			{ display: '业务联系人', name: 'YWLXR', align: 'center', width: '7%'},
+			{ display: '联系人手机', name: 'LXRSJ', align: 'center', width: '7%'},
+			/* { display: '办公传真', name: 'BGCZ', align: 'center', width: '3%'},
+			{ display: '办公电话', name: 'BGDH', align: 'center', width: '3%'}, */
+			{ display: '联系人邮箱', name: 'LXRYX', align: 'center', width: '8%'},
+			/*{ display: '联系人职务', name: 'LXRZW', align: 'center', width: '3%'},
+			{ display: '办公地址', name: 'BGDZ', align: 'center', width: '3%'},
+			{ display: '资质证书', name: 'ZZZS', align: 'center', width: '3%'},
+			{ display: '不良供应商处罚周期', name: 'BLGYSCFZQ', align: 'center', width: '3%'},
+			{ display: '不良供应商处罚周期', name: 'BLGYSCFZQ', align: 'center', width: '7%'},*/
+			{ display: '黑名单', name: 'HMD', align: 'center', width: '7%'},
+			{ display: '供应商信用等级评价', name: 'BLGYSXYPJDJ', align: 'center', width: '7%'},
+		    { display: '供应商分类', name: 'GYSFL', align: 'center', width: '7%'},
+			{ display: '供应商企业性质', name: 'GYSQYXZ', align: 'center', width: '7%'},
+			{ display: '营业执照照片', name: 'YYZZZP', align: 'center', width: '7%', render:  function (rowdata, rowindex, value, column){
+				var shtml ="";
+				if(rowdata.YYZZZP!=null){
+					  shtml = "<a href="+rowdata.YYZZZP+"  id='pics'  target='_blank'>点击查看</a>";
+				}
+                return shtml;
+            }},
+			{ display: '供应商经营范围', name: 'GYSJYFW', align: 'center', width: '7%', render:  function (rowdata, rowindex, value, column){
+				//top.frmright.src = '/suppliestemplate'document.getElementById('youriframe').src
+				//var	 shtml = "";
+				var s = rowdata.QYMC.trim();
+				//var	 shtml = '<a id="pics" href='+'javascript:openDetail("'+rowdata.QYMC+'")'+'>供应商所含物资</a>';
+				var	 shtml = '<a id="pics" href='+'javascript:openDetail("'+s+'")'+'>供应商所含物资</a>';
+               return shtml;
+            }},
+			{ display: '录入时间', name: 'ENTRY_TIME', align: 'center', width: '8%'},
+			/*资质证书ID*/
+			/* { display: '资质证书ID', name: 'CERTIFICATE_ID', align: 'center', width: '3%'}, */
+			/* ID */
+       		{ display: '操作', isAllowHide: false, align: 'center', width:'7%',
+				 render: function (rowdata, rowindex, value, column){
+                	    return '<div class="padding_top4 padding_left5">'
+                                + '<span class="img_list hand my-permission" data-permisson="/gys/detailView" title="查看" onclick='+'onView("' + rowdata.ID + '")'+'></span>'
+                                + '<span class="img_edit my-permission" data-permisson="/gys/updateView" title="修改" onclick='+'onEdit("' + rowdata.ID + '")'+'></span>' 
+                                + '<span class="img_delete hand my-permission" data-permisson="/gys/delete" title="删除" onclick='+'onDelete("' + rowdata.ID+'",'+rowindex + ')'+'></span>'
+                           	  + '</div>';
+                 }
+            }
+		  ],
+		 frozen:false,
+		 url: '/gys/list', sortName: 'userId',detailClickExpand:false,rownumbers:true,checkbox:true,
+	     height: '100%', width:"100%",pageSize:10,percentWidthMode:true,
+	     headerRowHeight: 40,
+	     detail: { onShowDetail: showCertificate, height: 'auto' },
+	     onError: function (a, b){
+	         //错误事件
+	     },
+	     onAfterShowData: function (data){
+	    	 refreshPermssion();
+	     }, 
+	 /*     onLoading: function () {
+	    	 searchHandler2();
+		}, */
+	     toolbar:{
+	    	 items:[
+	    		  {text: '新增', click: addUnit,  iconClass: 'icon_add', per: '/gys/addView', perClass: 'my-permission'},
+	    		  { line : true },
+	    		  {text: '批量删除', click: deleteUnit, iconClass: 'icon_delete', per: '/gys/deleteBatch', perClass: 'my-permission'},
+	    		  { line : true },
+	    		  {text: '导入', click: importQuote,   iconClass: 'icon_import', per: '/gys/importExcel', perClass: 'my-permission'},
+	    		  { line : true },
+	    		  {text: '导出模板', click: onExport,   iconClass: 'icon_export', per: '/gys/export', perClass: 'my-permission'},
+	    		  { line : true }, 
+	    		]
+	     	},alternatingRow: false,
+	        rowAttrRender: function(rowdata, rowid){
+	          	 var b = rowdata.YXQ != null && Date.today().isAfter(new Date(rowdata.YXQ));
+	              return b ? "style=\"background-color:Yellow;\"" : '';
+	        },
+	        
+
+	        
+	});
+	searchHandler();
+	//监听查询框的回车事件
+	 $("#searchInput").keydown(function(event){
+	 	if(event.keyCode==13){
+			searchHandler();
+		}
+	 })
+	 
+	 $("#searchPanel").bind("stateChange",function(e,state){
+		grid.resetHeight();
+	});
+	
+	 $.quiDefaults.Grid.formatters['date'] = function (value, column) {
+ 	  	if(value != null) { 	  		
+ 	   		return value.substring(0,10);
+ 	  	}
+	 	return value;
+     }
+   	 $.quiDefaults.Grid.formatters['dateRed'] = function (value, column) {
+ 	  	if(value != null) { 	  		
+	 	  	value = value.substring(0, 10);
+	 	  	if(Date.today().isAfter(new Date(value))) {        	  		
+	 	    	return "<span style='color:red'>"+value+"</span>";
+	 	  	}
+ 	  	}
+	 	return value;
+     }
+}
+//子页面展示
+function showCertificate(row, detailPanel,callback){
+		var	sonGrid = document.createElement('div'); 
+           $(detailPanel).append(sonGrid).css("background-color","#f0faf9");
+          childGrid = $(sonGrid).css('margin',10).quiGrid({
+                columns: [
+				{ display: '编号', name: 'NO', align: 'center'},
+				{ display: '名称', name: 'NAME', align: 'center', },
+				{ display: '内容', name: 'CONTENT', align: 'center'},
+				{ display: '证书有效期(起始日期)', name: 'START_TIME', align: 'center', type:'date'},
+				{ display: '证书有效期(终止日期)', name: 'END_TIME', align: 'center', type:'dateRed'},
+				{ display: '发证单位', name: 'UNIT', align: 'center'},
+				{ display: '证书类别', name: 'ZSLB', align: 'center'},
+				{ display: '证书信息', name: 'ZSXX', align: 'center'},
+				{ display: '证书所含物资', name: 'ZSSHWZ', align: 'center',render:  function (rowdata, rowindex, value, column){
+					var s = rowdata.ZSLB.trim();
+					var	 shtml = '<a id="pics" href='+'javascript:openDetails("'+s+'")'+'>证书所含物资</a>';
+	                return shtml;
+	            }}, 
+				{ display: '证书照片', name: 'ZSZP', align: 'center', render:  function (rowdata, rowindex, value, column){
+					var shtml ="";
+					if(rowdata.ZSZP!=null){
+						  shtml = "<a href="+rowdata.ZSZP+"  id='pics'  target='_blank'>证书1</a>";
+					}
+					 if(rowdata.ZSZP2!=null){
+						  shtml += "&nbsp;&nbsp;<a href="+rowdata.ZSZP2+"  id='pics'  target='_blank'>证书2</a>";
+					}
+					if(rowdata.ZSZP3!=null){
+						  shtml += "&nbsp;&nbsp;<a href="+rowdata.ZSZP3+"  id='pics'  target='_blank'>证书3</a>";
+					}
+	                return shtml;
+	            }},
+				/* { display: '物资编码', name: 'CODE', align: 'center'}, */
+				{ display: '操作', isAllowHide: false, align: 'center',
+					 render: function (rowdata, rowindex, value, column){
+                	    return '<div class="padding_top4 padding_left5">'
+                                + '<span class="img_list hand my-permission" title="查看" data-permisson="/certificate/detailViewSon" onclick='+'onViewSon("' + rowdata.ID + '")'+'></span>'
+                                + '<span class="img_edit hand my-permission" title="修改" data-permisson="/certificate/updateViewSon" onclick='+'onEditSon("' + rowdata.ID + '")'+'></span>'
+                                + '<span class="img_delete hand my-permission" title="删除" data-permisson="/certificate/deleteSon" onclick='+'onDeleteSon("' + rowdata.ID + '")'+'></span>'
+                            + '</div>';
+	                 }
+	            }
+                ], 
+                onAfterShowData: function (data){
+	    	    	 refreshPermssion();
+	    	    }, 
+                isScroll: false,width: '1535', columnWidth: 150,
+                url: '/gys/showCer?supplierId='+row.ID, rownumbers:true,
+                height: '100%', pageSize:10,
+                toolbar:{
+		        	 items:[
+		        		  {text: '新增', click: function(){addUnitSon(row.ID)},    iconClass: 'icon_add', per: '/certificate/addViewSon', perClass: 'my-permission'},
+		        		  { line : true },
+		        		  {text: '导入', click: function(){importQuoteSon(row.ID)},   iconClass: 'icon_import', per: '/certificate/importView', perClass: 'my-permission'},
+		        		  { line : true },
+		        		  {text: '导出模板', click: function(){onExportSon()},   iconClass: 'icon_export', per: '/certificate/export', perClass: 'my-permission'},
+		        		  { line : true }, 
+		        		]
+		         	}
+           });  
+}
+
+//新增
+function addUnit() {
+	top.Dialog.open({
+			URL:"/gys/addView",
+			Title:"添加",Width:500,Height:500});
+}
+//查看
+function onView(rowid){
+	top.Dialog.open({
+		URL:"/gys/detailView?id="+rowid,
+		Title:"查看",Width:500,Height:500});
+}
+
+//修改	
+function onEdit(rowid){
+	top.Dialog.open({
+		URL:"/gys/updateView?id=" + rowid,
+		Title:"修改",Width:500,Height:500});
+	
+}
+//删除	
+function onDelete(rowid,rowidx){
+	top.Dialog.confirm("确定要删除该记录吗？",function(){
+	  	//删除记录
+	  	$.post("/gys/delete",
+	  			{"id":rowid},
+	  			function(result){
+	  				handleResult(result.status);
+				},"json");
+				//刷新表格
+				grid.loadData();
+		});
+}
+	
+	
+//批量删除
+function deleteUnit() {
+	var rows = grid.getSelectedRows();
+	var rowsLength = rows.length;
+	
+	if(rowsLength == 0) {
+		top.Dialog.alert("请选中要删除的记录!");
+		return;
+	}
+	top.Dialog.confirm("确定要删除吗？",function(){
+		$.post("/gys/deleteBatch",
+					//获取所有选中行
+					getSelectIds(grid),
+					function(result){
+						handleResult(result.status);
+					},
+					"json");
+		});
+}
+//删除后的提示
+function handleResult(result){
+	if(result == 1){
+		top.Dialog.alert("删除成功！",null,null,null,1);
+		grid.loadData();
+	}else if(result == 2){
+		top.Dialog.alert("供应商信息在报价中使用,无法删除!");
+		grid.loadData();
+	}else{
+		top.Dialog.alert("删除失败！");
+		grid.loadData();
+	}
+}
+
+//获取所有选中行获取选中行的id 格式为 ids=1&ids=2 
+function getSelectIds(grid) {
+	var selectedRows = grid.getSelectedRows();
+	var selectedRowsLength = selectedRows.length;
+	var ids = "";
+	
+	for(var i = 0;i<selectedRowsLength;i++) {
+		ids += selectedRows[i].ID + ",";
+	}
+	
+	//去掉末尾的","号
+	ids = ids.substring(0, ids.length-1);
+	
+	return {"ids":ids};
+}
+
+//查询
+function searchHandler(){
+	var query = $("#queryForm").formToArray(); 
+    grid.setOptions({ params : query});
+    //页号重置为1
+    grid.setNewPage(1);
+    grid.loadData();//加载数据
+    childGrid.loadData();//加载数据
+}
+
+//重置查询
+function resetSearch(){
+	
+	$("#queryForm")[0].reset();
+	$("#queryForm select").resetValue();
+}
+
+//刷新表格数据并重置排序和页数
+function refresh(isUpdate){
+	if(!isUpdate){
+		//重置排序
+    	grid.options.sortName='userId';
+    	grid.options.sortOrder="desc";
+    	//页号重置为1
+		grid.setNewPage(1);
+	}
+	grid.loadData();
+}
+
+//子新增
+function addUnitSon(fatherId) {
+	top.Dialog.open({
+			URL:"/certificate/addViewSon?fatherId="+fatherId,
+			Title:"添加",Width:500,Height:300});
+}
+//子查看
+function onViewSon(rowid){
+	top.Dialog.open({
+		URL:"/certificate/detailViewSon?id="+rowid,
+		Title:"查看",Width:500,Height:300});
+}
+
+//子修改	
+function onEditSon(rowid){
+	top.Dialog.open({
+		URL:"/certificate/updateViewSon?id="+rowid,
+		Title:"修改",Width:500,Height:300});
+}
+//子删除	
+function onDeleteSon(rowid,rowidx){
+	top.Dialog.confirm("确定要删除该记录吗？",function(){
+	  	//删除记录
+	  	$.post("/certificate/deleteSon",
+	  			{"id":rowid},
+	  			function(result){
+	  				handleResultSon(result.status);
+				},"json");
+				//刷新表格
+				childGrid.loadData();
+		});
+}
+
+//子删除后的提示
+function handleResultSon(result){
+	if(result == 1){
+		top.Dialog.alert("删除成功！",null,null,null,1);
+		childGrid.loadData();
+	}else{
+		top.Dialog.alert("删除失败！");
+	}
+}
+
+//导入供应商管理
+	var diagImport = new top.Dialog();
+	function importQuote(){
+		diagImport.Title = "导入模板";
+		diagImport.Width = 350;
+		diagImport.Height = 150;
+		diagImport.URL = "/gys/importView";
+		diagImport.show();
+		
+	}
+
+//导出供应商
+function onExport(){
+	location.href = "/gys/export";
+}
+
+
+var diagImportSon = new top.Dialog();
+//子页面证书的导入
+function importQuoteSon(rowId){
+	// console.log(rowId);
+	diagImportSon.Title = "导入模板";
+	diagImportSon.Width = 350;
+	diagImportSon.Height = 150;
+	diagImportSon.URL = "/certificate/importView?supplierIds="+rowId;
+	diagImportSon.show();
+}
+
+//子页面导出模板
+function onExportSon(){
+	
+	location.href = "/certificate/export";
+}
+
+//刷新表格数据并重置排序和页数
+function refreshSon(isUpdate){
+	if(!isUpdate){
+		//重置排序
+    	childGrid.options.sortName='userId';
+    	childGrid.options.sortOrder="desc";
+    	//页号重置为1
+		childGrid.setNewPage(1);
+	}
+	childGrid.loadData();
+}
+
+
+$.post("/gys/findOverDate", function(data){
+
+	if(data.length < 1) return; 
+	if(data.gys.length < 1) return; 
+
+	var html = "<div style='overflow:auto;height: inherit;'>";
+
+	for(var i=0; i<data.gys.length;i++){
+		html += "<div><dt>"+data.gys[i].GYSBH+"-"+data.gys[i].QYMC+"</dt></div>";
+			for(var j=0;j<data.zzzs.length;j++){
+				if(data.gys[i].ID == data.zzzs[j].SUPPLIER_ID){
+					html += "<div><dd style='margin-left:35px;'>"+data.zzzs[j].NO+"-"+data.zzzs[j].NAME+"<dd></div>";
+					}
+			}
+		}
+	html += "</div>"
+	$.messager.lays(400,200) 
+	$.messager.show("以下供应商和供应商证书资质已过期",html,'stay');
+});
+
+//供应商信息的导出功能
+function exportGys(){
+	window.location.href="/gys/exportGys?"+$("#queryForm").serialize();
+}
+</script>
+</body>
+</html>

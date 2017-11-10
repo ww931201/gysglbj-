@@ -1,0 +1,71 @@
+#include("/WEB-INF/view/common/qui/header.html")
+
+<!-- 树组件start -->
+<script type="text/javascript" src="/libs/js/tree/ztree/ztree.js"></script>
+<link type="text/css" rel="stylesheet" href="/libs/js/tree/ztree/ztree.css"></link>
+<!-- 树组件end -->
+
+<!-- 树形下拉框start -->
+<script type="text/javascript" src="/libs/js/form/selectTree.js"></script>
+<!-- 树形下拉框end -->
+
+<!-- 表单验证start -->
+<script src="/libs/js/form/validationRule.js" type="text/javascript"></script>
+<script src="/libs/js/form/validation.js" type="text/javascript"></script>
+<!-- 表单验证end -->
+
+</head>
+<body>
+<div class="box1" id="formContent" whiteBg="true">
+	<form id="myFormId" onsubmit="return false;" method="post">
+	<table class="tableStyle" formMode="transparent">
+		<input type="hidden" name="project.ID" value="#(project.ID ??)" />
+		<tr>
+			<td width="150">名称：</td><td><input style="width:200px" type="text" name="project.NAME" value="#(project.NAME ??)" class="validate[required,length[0,30]]"/><span class="star">*</span></td>
+		</tr>
+		<tr>
+			<td>编号：</td><td><input style="width:200px" type="text" name="project.NO" value="#(project.NO ??)" class="validate[required,length[0,30]]"/><span class="star">*</span></td>
+		</tr>
+		<tr>
+			<td>类型：</td>
+			<td>
+				<select name="project.TYPE" data='{"list":[{"key":"竞买","value":"1"},{"key":"竞价","value":"2"}]}' selectedValue="#(project.TYPE ??)">
+				</select>
+				<span class="star">*</span>
+			</td>
+		</tr>
+		<tr>
+			<td>备注：</td><td><textarea name="project.REMARK">#(project.REMARK ??)</textarea></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<button onclick="submitHandler()">提交</button>
+				<input type="button" value="取消" onclick='top.Dialog.close()'/>
+			</td>
+		</tr>
+	</table>
+	</form>
+</div>
+<!-- 异步提交start -->
+<script type="text/javascript">
+
+function submitHandler() {
+	var valid = $('#myFormId').validationEngine({returnIsValid: true});
+	if(valid){
+		$.post("/project/save", $('#myFormId').serializeArray(), function(data) {
+			if(data.message){
+				top.Dialog.alert(data.message);
+			}else {
+				//刷新数据
+				top.frmright.gridProject.loadData();
+				//关闭窗口
+				top.Dialog.close();
+			}
+		});
+	 }
+}
+
+</script>
+<!-- 异步提交end -->	
+</body>	
+</html>
